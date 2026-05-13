@@ -34,6 +34,7 @@ pipeline {
                     sh '''
                         echo $DOCKER_TOKEN | docker login -u mandrindraesperant --password-stdin
                         docker push mandrindraesperant/spring-graphql:1.0.0
+                        docker logout
                     '''
                 }
             }
