@@ -40,4 +40,14 @@ pipeline {
             }
         }
     }
+    post {
+        failure {
+            emailext(
+                body: "Ce build ${BUILD_NUMBER} a échoué",
+                subject: "Build Failed",
+                to: "tonemail@gmail.com",
+                recipientProviders: [[$class: 'RequesterRecipientProvider']]
+            )
+    }
+}
 }
