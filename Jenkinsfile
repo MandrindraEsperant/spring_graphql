@@ -48,6 +48,14 @@ pipeline {
                 to: "mandrindraesperant@gmail.com",
                 recipientProviders: [[$class: 'RequesterRecipientProvider']]
             )
+        }
+        success {
+            emailext(
+                body: "Ce build ${BUILD_NUMBER} a réussi",
+                subject: "Build Success",
+                to: "mandrindraesperant@gmail.com",
+                recipientProviders: [[$class: 'RequesterRecipientProvider']]
+            )
+        }
     }
-}
 }
