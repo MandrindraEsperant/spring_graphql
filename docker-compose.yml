@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+
+  # ─── Base de données PostgreSQL ───────────────────────────
+  postgres:
+    image: postgres:15-alpine
+    container_name: spring-graphql-db
+    environment:
+      POSTGRES_DB: spring_graphql
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - spring-graphql-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Application Spring Boot ──────────────────────────────
+  app:
+    build: .
+    container_name: spring-graphql-app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/spring_graphql
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - spring-graphql-net
+
+networks:
+  spring-graphql-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
