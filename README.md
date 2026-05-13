@@ -18,3 +18,4 @@ API GraphQL développée avec Spring Boot — CRUD pour les entités **Book** et
 ```
 
 ## Endpoint GraphQL
+[text](http://localhost:8080/graphql)
