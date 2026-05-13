@@ -1,64 +1,41 @@
 pipeline {
     agent any
 
-    environment {
-        IMAGE_NAME = 'mandrindraesperant/spring-graphql'
-        IMAGE_TAG  = "${BUILD_NUMBER}"
-    }
-
     stages {
 
-        // ─── Checkout Git ────────────────────────────────
-        stage('Checkout') {
+        stage('Git Checkout') {
             steps {
                 checkout scm
-            }
+                }
         }
 
-        // ─── Build + Tests en une seule étape ───────────
-        stage('Build & Test') {
+        stage('Build Application') {
             steps {
-                sh '''
-                    chmod +x mvnw
-                    ./mvnw clean verify -B
-                '''
+                sh 'chmod +x mvnw'
+                sh './mvnw clean package -DskipTests -B'
             }
         }
 
-        // ─── Build Docker Image ─────────────────────────
+        stage('Unit Tests') {
+            steps {
+                sh './mvnw test'
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
-                sh '''
-                    docker build \
-                    -t $IMAGE_NAME:$IMAGE_TAG \
-                    -t $IMAGE_NAME:latest .
-                '''
+                sh 'docker build -t mandrindraesperant/spring-graphql:1.0.0 .'
             }
         }
 
-        // ─── Push DockerHub ─────────────────────────────
-        stage('Push DockerHub') {
+        stage('Push to DockerHub') {
             steps {
                 withCredentials([string(credentialsId: 'dockerhub-token', variable: 'DOCKER_TOKEN')]) {
-
                     sh '''
-                        echo "$DOCKER_TOKEN" | docker login -u "mandrindraesperant" --password-stdin
-
-                        docker push $IMAGE_NAME:$IMAGE_TAG
-                        docker push $IMAGE_NAME:latest
-
-                        docker logout
+                        echo $DOCKER_TOKEN | docker login -u mandrindraesperant --password-stdin
+                        docker push mandrindraesperant/spring-graphql:1.0.0
                     '''
                 }
-            }
-        }
-
-        // ─── Nettoyage ──────────────────────────────────
-        stage('Cleanup') {
-            steps {
-                sh '''
-                    docker image prune -f
-                '''
             }
         }
     }
