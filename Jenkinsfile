@@ -45,7 +45,7 @@ pipeline {
             emailext(
                 body: "Ce build ${BUILD_NUMBER} a échoué",
                 subject: "Build Failed",
-                to: "tonemail@gmail.com",
+                to: "mandrindraesperant@gmail.com",
                 recipientProviders: [[$class: 'RequesterRecipientProvider']]
             )
     }
